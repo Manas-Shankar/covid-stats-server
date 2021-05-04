@@ -12,8 +12,8 @@ dotenv.config();
 const app = express();
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-let conn = mongoose.createConnection("mongodb+srv://admin-manas:manas-shankar@cluster0.ycyr7.mongodb.net/ScrapeDB?retryWrites=true&w=majority",{useNewUrlParser: true, useUnifiedTopology: true});
-let conn1 = mongoose.createConnection("mongodb+srv://admin-manas:manas-shankar@cluster0.ycyr7.mongodb.net/UserDB?retryWrites=true&w=majority",{useNewUrlParser: true, useUnifiedTopology: true});
+let conn = mongoose.createConnection(`mongodb+srv://admin-manas:${process.env.MONGO_KEY}@cluster0.ycyr7.mongodb.net/ScrapeDB?retryWrites=true&w=majority`,{useNewUrlParser: true, useUnifiedTopology: true});
+let conn1 = mongoose.createConnection(`mongodb+srv://admin-manas:${process.env.MONGO_KEY}@cluster0.ycyr7.mongodb.net/UserDB?retryWrites=true&w=majority`,{useNewUrlParser: true, useUnifiedTopology: true});
 
 
     const MillifyOptions = {
