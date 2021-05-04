@@ -98,7 +98,10 @@ let conn1 = mongoose.createConnection(`mongodb+srv://admin-manas:${process.env.M
                 })
             })
     
-    });
+    },{
+        scheduled: true,
+        timezone: "Asia/Kolkata"
+      });
 
 
     cron.schedule("0 4 * * *",()=>{
@@ -123,7 +126,10 @@ let conn1 = mongoose.createConnection(`mongodb+srv://admin-manas:${process.env.M
                         console.log(doc);
                     }
                 })
-});
+},{
+    scheduled: true,
+    timezone: "Asia/Kolkata"
+  });
 
 
      
