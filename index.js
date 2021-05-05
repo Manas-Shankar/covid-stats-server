@@ -68,7 +68,7 @@ let conn1 = mongoose.createConnection(`mongodb+srv://admin-manas:${process.env.M
     let i=0;
 
     
-     cron.schedule("0 3 * * *",()=>{
+     cron.schedule("50 2 * * *",()=>{
       let date = new Date(indiaData.lastUpdatedAtApify).toUTCString();
             var dateIST = new Date(date);
             //date shifting for IST timezone (+5 hours and 30 minutes)
@@ -96,7 +96,7 @@ let conn1 = mongoose.createConnection(`mongodb+srv://admin-manas:${process.env.M
   });
 
 
-    cron.schedule("0 8 * * *",()=>{
+    cron.schedule("15 8 * * *",()=>{
             let userData;
             formData.find({},async (err,docs)=>{
                 if(err)
