@@ -135,8 +135,12 @@ let conn1 = mongoose.createConnection(`mongodb+srv://admin-manas:${process.env.M
      
 
 
-app.get("/",async (req,res)=>{   
-    let dateToday = new Date().toDateString(); 
+app.get("/",(req,res)=>{   
+   res.send("running !");
+})
+
+app.get("/data",(req,res)=>{
+   let dateToday = new Date().toDateString(); 
   Scraped.findOne({lastUpdatedAt:dateToday},{},{},(err,doc)=>{
     if(err)
     {
@@ -148,7 +152,7 @@ app.get("/",async (req,res)=>{
         console.log(scrapedData)
         res.send(scrapedData)
     }
-    })
+    })  
     
 })
 
