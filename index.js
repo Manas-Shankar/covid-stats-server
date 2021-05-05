@@ -68,7 +68,32 @@ let conn1 = mongoose.createConnection(`mongodb+srv://admin-manas:${process.env.M
     let i=0;
 
     
-    
+     cron.schedule("0 4 * * *",()=>{
+      let date = new Date(indiaData.lastUpdatedAtApify).toUTCString();
+            var dateIST = new Date(date);
+            //date shifting for IST timezone (+5 hours and 30 minutes)
+            dateIST.setHours(dateIST.getHours() + 5); 
+            dateIST.setMinutes(dateIST.getMinutes() + 30);
+
+            let dateFinal = dateIST.toDateString()
+            let scraped1 = new Scraped({
+                lastUpdatedAt : dateFinal,
+                scrapedData : bundle
+            })
+
+                Scraped.create([scraped1],(err,doc)=>{
+                    if(err)
+                    {
+                        console.log(err)
+                    }
+                    else{
+                        console.log(doc);
+                    }
+                })
+},{
+    scheduled: true,
+    timezone: "Asia/Kolkata"
+  });
 
 
     cron.schedule("0 9 * * *",()=>{
@@ -104,32 +129,7 @@ let conn1 = mongoose.createConnection(`mongodb+srv://admin-manas:${process.env.M
       });
 
 
-    cron.schedule("0 4 * * *",()=>{
-      let date = new Date(indiaData.lastUpdatedAtApify).toUTCString();
-            var dateIST = new Date(date);
-            //date shifting for IST timezone (+5 hours and 30 minutes)
-            dateIST.setHours(dateIST.getHours() + 5); 
-            dateIST.setMinutes(dateIST.getMinutes() + 30);
-
-            let dateFinal = dateIST.toDateString()
-            let scraped1 = new Scraped({
-                lastUpdatedAt : dateFinal,
-                scrapedData : bundle
-            })
-
-                Scraped.create([scraped1],(err,doc)=>{
-                    if(err)
-                    {
-                        console.log(err)
-                    }
-                    else{
-                        console.log(doc);
-                    }
-                })
-},{
-    scheduled: true,
-    timezone: "Asia/Kolkata"
-  });
+   
 
 
      
@@ -222,7 +222,7 @@ app.post('/', (req, res) => {
 
 const port = process.env.PORT;
 app.listen(port || 4000, () => {
-    console.log('App listening on port 4000!');
+    console.log(`App listening on port ${port}!`);
 });
 
 
