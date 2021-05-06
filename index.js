@@ -45,30 +45,30 @@ let conn1 = mongoose.createConnection(`mongodb+srv://admin-manas:${process.env.M
 
     app.use(express.static("public"));
     app.use(cors())
-
-    await axios.get(ind_url)
-    .then((data)=>{
-        indiaData = Object.assign({},data.data[0]);
     
-        delete indiaData.regionData;
-        regionData = data.data[0].regionData;
-   
-    })
-    .catch(err => {console.log(err)});
+     cron.schedule("10 8 * * *",async ()=>{
 
-    await axios.get(world_url)
-    .then((data)=>{
-        worldData = Object.assign({},data.data[0].regionData[0]);
-    })
-    .catch(err => {console.log(err)});
+        await axios.get(ind_url)
+        .then((data)=>{
+            indiaData = Object.assign({},data.data[0]);
+        
+            delete indiaData.regionData;
+            regionData = data.data[0].regionData;
+       
+        })
+        .catch(err => {console.log(err)});
 
-        //console.log(worldData)
-        //console.log(regionData)
-    const bundle = [worldData,indiaData,regionData]
-    let i=0;
 
-    
-     cron.schedule("0 3 * * *",()=>{
+        await axios.get(world_url)
+        .then((data)=>{
+            worldData = Object.assign({},data.data[0].regionData[0]);
+        })
+        .catch(err => {console.log(err)});
+        console.log(worldData)
+        console.log(regionData)
+
+
+
       let date = new Date(indiaData.lastUpdatedAtApify).toUTCString();
             var dateIST = new Date(date);
             //date shifting for IST timezone (+5 hours and 30 minutes)
@@ -96,7 +96,7 @@ let conn1 = mongoose.createConnection(`mongodb+srv://admin-manas:${process.env.M
   });
 
 
-    cron.schedule("0 8 * * *",()=>{
+    cron.schedule("15 8 * * *",()=>{
             let userData;
             formData.find({},async (err,docs)=>{
                 if(err)
@@ -129,11 +129,6 @@ let conn1 = mongoose.createConnection(`mongodb+srv://admin-manas:${process.env.M
       });
 
 
-   
-
-
-     
-
 
 app.get("/",(req,res)=>{   
    res.send("running !");
@@ -155,8 +150,9 @@ app.get("/data",(req,res)=>{
         res.send(scrapedData)
     }
     })  
-    
 })
+
+
 
 app.post('/', (req, res) => {
     let nonInsert = false;
