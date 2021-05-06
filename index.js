@@ -29,7 +29,7 @@ let conn1 = mongoose.createConnection(`mongodb+srv://admin-manas:${process.env.M
     const formSchema = {
         name : String,
         phone : String,
-        region: Object
+        region: String
     }
 
     const Scraped = conn.model("Scrape",scrapedSchema);
@@ -109,6 +109,10 @@ let conn1 = mongoose.createConnection(`mongodb+srv://admin-manas:${process.env.M
 
     cron.schedule("15 8 * * *",()=>{
             let userData;
+            let filtered_area;
+            let filtered_area_object;
+            let options;
+            let dateToday = new Date().toDateString(); 
             formData.find({},async (err,docs)=>{
                 if(err)
                 {
@@ -117,20 +121,35 @@ let conn1 = mongoose.createConnection(`mongodb+srv://admin-manas:${process.env.M
                 else{
                     // console.log(docs)
                     userData = await docs;
-                    
                 }
+                
                 userData.map(async (item,index)=>{
-                       console.log(item.region);
-                    var options = 
-                    {   authorization : process.env.FAST_API_KEY ,
-                        message : `Hello ${item.name},\nyour area stats are:\nRegion: ${item.region.region}\nTotal cases: ${millify.default(item.region.totalInfected,MillifyOptions)}\nNew cases: ${millify.default(item.region.newInfected,MillifyOptions)}\nRecovered: ${millify.default(item.region.recovered,MillifyOptions)}\nNewly Recovered: ${millify.default(item.region.newRecovered,MillifyOptions)}\nDeaths: ${millify.default(item.region.deceased,MillifyOptions)}\nRecent Deaths: ${millify.default(item.region.newDeceased,MillifyOptions)}\n`,  
-                        numbers : [item.phone]
-                    } 
-                    await console.log("sending message to:\n",options.message)
-                    await fast2sms.sendMessage(options).then(async (response)=>{
-                           await console.log(response);
+                    console.log(item.region);
+                    await Scraped.findOne({lastUpdatedAt:dateToday},{},{},async (err1,doc1)=>{
+                        if(err1)
+                        {
+                            console.log(err1)
+                        }  
+                        else{
+                        
+                            let scrapedData = doc1.scrapedData;
+                            let areas = scrapedData[2];
+                            filtered_area = areas.filter((loc)=>{
+                                return loc.region ===item.region 
+                            })
+                            // console.log(filtered_area)
+                            filtered_area_object = filtered_area[0];
+                            options = 
+                            {   authorization : process.env.FAST_API_KEY ,
+                                message : `Hello ${item.name},\nyour area stats are:\nRegion: ${filtered_area_object.region}\nTotal cases: ${millify.default(filtered_area_object.totalInfected,MillifyOptions)}\nNew cases: ${millify.default(filtered_area_object.newInfected,MillifyOptions)}\nRecovered: ${millify.default(filtered_area_object.recovered,MillifyOptions)}\nNewly Recovered: ${millify.default(filtered_area_object.newRecovered,MillifyOptions)}\nDeaths: ${millify.default(filtered_area_object.deceased,MillifyOptions)}\nRecent Deaths: ${millify.default(filtered_area_object.newDeceased,MillifyOptions)}\n`,  
+                                numbers : [item.phone]
+                            }
+                            await console.log("sending message to:\n",options.message)
+                                await fast2sms.sendMessage(options).then(async (response)=>{
+                                    await console.log(response);
+                                })
+                        }
                         })
-                    
                 })
             })
     
@@ -167,15 +186,13 @@ app.get("/data",(req,res)=>{
 
 app.post('/', (req, res) => {
     let nonInsert = false;
-    let scrapedData;
-    let filtered_area;
     console.log(req.body.name);
     let name = req.body.name;
     console.log(req.body.phone);
     let phone = req.body.phone
     console.log(req.body.region);
     let area = req.body.region;
-    let dateToday = new Date().toDateString(); 
+  
 
     formData.find({},{},{},async (err,doc)=>{
         if(err)
@@ -195,34 +212,20 @@ app.post('/', (req, res) => {
             if(nonInsert===false)
                 {   
                     res.send("received");
-                    Scraped.findOne({lastUpdatedAt:dateToday},{},{},(err1,doc1)=>{
-                    if(err1)
-                    {
-                        console.log(err1)
-                    }  
-                    else{
-                    
-                    scrapedData = doc1.scrapedData;
-                    let areas = scrapedData[2];
-                    filtered_area = areas.filter((item)=>{
-                        return item.region === area 
-                    })
                     let user = new formData({
                         name:name,
                         phone:phone,
-                        region:filtered_area[0]
+                        region:area
                     })
                       formData.create([user],(err2,doc2)=>{
-                      if(err2)
-                      {
-                          console.log(err2)
-                      }
-                      else{
-                          console.log(doc2);
-                      }
+                            if(err2)
+                            {
+                                console.log(err2)
+                            }
+                            else{
+                                console.log(doc2);
+                            }
                       })
-                    }
-                    })
                 }
         }
         
