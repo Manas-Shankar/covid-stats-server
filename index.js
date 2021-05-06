@@ -46,7 +46,7 @@ let conn1 = mongoose.createConnection(`mongodb+srv://admin-manas:${process.env.M
     app.use(express.static("public"));
     app.use(cors())
     
-     cron.schedule("10 8 * * *",async ()=>{
+     cron.schedule("14 8 * * *",async ()=>{
 
         await axios.get(ind_url)
         .then((data)=>{
