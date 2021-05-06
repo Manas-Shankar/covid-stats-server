@@ -42,32 +42,43 @@ let conn1 = mongoose.createConnection(`mongodb+srv://admin-manas:${process.env.M
         let indiaData;
         let regionData;
         let worldData;
+        let bundle;
 
     app.use(express.static("public"));
     app.use(cors())
+
     
-     cron.schedule("14 8 * * *",async ()=>{
 
+
+    cron.schedule("10 3 * * *",async ()=>{
         await axios.get(ind_url)
-        .then((data)=>{
-            indiaData = Object.assign({},data.data[0]);
+    .then((data)=>{
+        indiaData = Object.assign({},data.data[0]);
+    
+        delete indiaData.regionData;
+        regionData = data.data[0].regionData;
+   
+    })
+    .catch(err => {console.log(err)});
+
+
+    await axios.get(world_url)
+    .then((data)=>{
+        worldData = Object.assign({},data.data[0].regionData[0]);
+    })
+    .catch(err => {console.log(err)});
+    console.log(worldData)
+    console.log(regionData)
+    console.log(indiaData)
+    bundle = [worldData,indiaData,regionData]
         
-            delete indiaData.regionData;
-            regionData = data.data[0].regionData;
-       
-        })
-        .catch(err => {console.log(err)});
-
-
-        await axios.get(world_url)
-        .then((data)=>{
-            worldData = Object.assign({},data.data[0].regionData[0]);
-        })
-        .catch(err => {console.log(err)});
-        console.log(worldData)
-        console.log(regionData)
-
-
+  },{
+      scheduled: true,
+      timezone: "Asia/Kolkata"
+    });
+  
+    
+     cron.schedule("15 3 * * *",()=>{
 
       let date = new Date(indiaData.lastUpdatedAtApify).toUTCString();
             var dateIST = new Date(date);
@@ -131,7 +142,7 @@ let conn1 = mongoose.createConnection(`mongodb+srv://admin-manas:${process.env.M
 
 
 app.get("/",(req,res)=>{   
-   res.send("running !");
+    res.send("running");
 })
 
 
